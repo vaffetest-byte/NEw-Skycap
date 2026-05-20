@@ -21,9 +21,10 @@ const Navbar = () => {
 
   const navLinks = [
     { label: "Financial Solutions", href: "#products" },
+    { label: "Industries", href: "#industries" },
     { label: "Process", href: "#process" },
     { label: "Why Us", href: "#why-us" },
-    { label: "Testimonials", href: "#testimonials" },
+    { label: "FAQ", href: "#faq" },
     { label: "Funding Blog", href: "/blog", isPage: true },
   ];
 
