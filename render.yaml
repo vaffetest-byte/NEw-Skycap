@@ -2,7 +2,7 @@ services:
   - type: web
     name: skycapital-funding-hub
     runtime: static
-    buildCommand: npm run build
+    buildCommand: bun install && bun run build
     publishPath: dist
     routes:
       # Rewrite rule to handle React Router client-side routing
