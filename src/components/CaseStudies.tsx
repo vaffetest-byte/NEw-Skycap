@@ -41,13 +41,9 @@ export const CaseStudies = () => {
   return (
     <section 
       id="case-studies" 
-      className="py-24 bg-card border-t border-border/50 relative overflow-hidden"
+      className="py-24 bg-[#F8F9FC] border-t border-border/50 relative overflow-hidden"
       aria-label="Real Business Funding Case Studies"
     >
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm20 20h20v20H20V20z' fill='%23080f1e' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`
-      }} />
-
       <div className="container px-4 md:px-8 relative z-10">
         {/* Header */}
         <div 
