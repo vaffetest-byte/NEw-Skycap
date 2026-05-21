@@ -3,7 +3,7 @@ import { Phone, ShieldCheck, Clock, Award, Star } from "lucide-react";
 import FundingCalculator from "./FundingCalculator";
 import useScrollAnimation from "@/hooks/useScrollAnimation";
 
-// Dynamic canvas background rendering flowing capital streams, golden coins, and interactive growth nodes
+// Dynamic canvas background rendering an Animated Gradient Mesh (Aurora) with interactive particle gravity
 const FundingBackgroundAnimation = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -26,23 +26,81 @@ const FundingBackgroundAnimation = () => {
 
     window.addEventListener("resize", handleResize);
 
+    // Mesh gradient nodes that slide and bounce organically
+    interface MeshNode {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+      color1: string;
+      color2: string;
+    }
+
+    const meshNodes: MeshNode[] = [
+      {
+        x: width * 0.2,
+        y: height * 0.3,
+        vx: 0.35,
+        vy: 0.25,
+        radius: Math.min(width, height) * 0.7,
+        color1: "rgba(16, 185, 129, 0.16)", // Emerald Green
+        color2: "rgba(16, 185, 129, 0)"
+      },
+      {
+        x: width * 0.8,
+        y: height * 0.2,
+        vx: -0.25,
+        vy: 0.4,
+        radius: Math.min(width, height) * 0.75,
+        color1: "rgba(14, 165, 233, 0.18)", // Sky Blue
+        color2: "rgba(14, 165, 233, 0)"
+      },
+      {
+        x: width * 0.5,
+        y: height * 0.7,
+        vx: 0.45,
+        vy: -0.3,
+        radius: Math.min(width, height) * 0.85,
+        color1: "rgba(99, 102, 241, 0.15)", // Indigo
+        color2: "rgba(99, 102, 241, 0)"
+      },
+      {
+        x: width * 0.3,
+        y: height * 0.85,
+        vx: -0.35,
+        vy: -0.25,
+        radius: Math.min(width, height) * 0.65,
+        color1: "rgba(139, 92, 246, 0.15)", // Violet
+        color2: "rgba(139, 92, 246, 0)"
+      },
+      {
+        x: width * 0.85,
+        y: height * 0.8,
+        vx: 0.25,
+        vy: -0.45,
+        radius: Math.min(width, height) * 0.75,
+        color1: "rgba(45, 212, 191, 0.16)", // Mint Teal
+        color2: "rgba(45, 212, 191, 0)"
+      }
+    ];
+
     interface Particle {
       x: number;
       y: number;
-      ox: number; // original X
-      oy: number; // original Y
+      ox: number;
+      oy: number;
       vx: number;
       vy: number;
       size: number;
       alpha: number;
-      z: number; // depth layers (1 to 3) for parallax
+      z: number;
       color: string;
       trail: { x: number; y: number }[];
     }
 
     const particles: Particle[] = [];
-    const maxParticles = 80;
-
+    const maxParticles = 60;
     const colors = [
       "rgba(14, 165, 233, ", // Sky Blue
       "rgba(16, 185, 129, ", // Emerald Green
@@ -51,7 +109,7 @@ const FundingBackgroundAnimation = () => {
     ];
 
     for (let i = 0; i < maxParticles; i++) {
-      const z = Math.random() * 2 + 1; // 3D depth layer
+      const z = Math.random() * 2 + 1;
       const x = Math.random() * width;
       const y = Math.random() * height;
       particles.push({
@@ -60,9 +118,9 @@ const FundingBackgroundAnimation = () => {
         ox: x,
         oy: y,
         vx: (Math.random() - 0.5) * 0.2,
-        vy: -Math.random() * 0.3 - 0.1, // Float upward
+        vy: -Math.random() * 0.35 - 0.1, // Float upward
         size: Math.random() * 1.5 + 0.8,
-        alpha: Math.random() * 0.4 + 0.1,
+        alpha: Math.random() * 0.35 + 0.1,
         z,
         color: colors[Math.floor(Math.random() * colors.length)],
         trail: []
@@ -106,46 +164,55 @@ const FundingBackgroundAnimation = () => {
         mouseY = -1000;
       }
 
-      // 1. Draw Aurora Fluid Background Waves
-      // Emerald Green Capital Core
-      const emX = width * 0.35 + Math.sin(time * 0.003) * 100;
-      const emY = height * 0.65 + Math.cos(time * 0.002) * 80;
-      const emGrad = ctx.createRadialGradient(emX, emY, 20, emX, emY, 400);
-      emGrad.addColorStop(0, "rgba(16, 185, 129, 0.09)"); // Emerald
-      emGrad.addColorStop(0.5, "rgba(45, 212, 191, 0.03)"); // Teal
-      emGrad.addColorStop(1, "rgba(16, 185, 129, 0)");
-      ctx.fillStyle = emGrad;
-      ctx.beginPath();
-      ctx.arc(emX, emY, 400, 0, Math.PI * 2);
-      ctx.fill();
+      // 1. Draw Animated Gradient Mesh (Aurora) using screen blend mode
+      ctx.globalCompositeOperation = "screen";
+      meshNodes.forEach((node) => {
+        // Move nodes and bounce off boundaries
+        node.x += node.vx;
+        node.y += node.vy;
 
-      // Sky Blue Funding Stream Core
-      const blX = width * 0.7 + Math.cos(time * 0.0025) * 120;
-      const blY = height * 0.35 + Math.sin(time * 0.003) * 60;
-      const blGrad = ctx.createRadialGradient(blX, blY, 20, blX, blY, 350);
-      blGrad.addColorStop(0, "rgba(14, 165, 233, 0.12)"); // Sky Blue
-      blGrad.addColorStop(0.5, "rgba(99, 102, 241, 0.04)"); // Indigo
-      blGrad.addColorStop(1, "rgba(14, 165, 233, 0)");
-      ctx.fillStyle = blGrad;
-      ctx.beginPath();
-      ctx.arc(blX, blY, 350, 0, Math.PI * 2);
-      ctx.fill();
+        if (node.x < 0 || node.x > width) node.vx *= -1;
+        if (node.y < 0 || node.y > height) node.vy *= -1;
+
+        // Apply gentle mouse repulsion to the mesh nodes for interactive fluid warping
+        if (mouseX > 0) {
+          const dx = mouseX - node.x;
+          const dy = mouseY - node.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 400) {
+            node.x -= (dx / dist) * 0.6;
+            node.y -= (dy / dist) * 0.6;
+          }
+        }
+
+        // Draw radial gradient blob
+        const grad = ctx.createRadialGradient(node.x, node.y, 10, node.x, node.y, node.radius);
+        grad.addColorStop(0, node.color1);
+        grad.addColorStop(1, node.color2);
+        
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Restore normal composite operation for lines/particles
+      ctx.globalCompositeOperation = "source-over";
 
       // 2. Draw Floating Capital Stream Ribbons
       ctx.lineWidth = 1;
       for (let w = 0; w < 2; w++) {
         ctx.beginPath();
-        const phase = time * 0.004 * (w + 1);
-        const amplitude = 30 + w * 15;
+        const phase = time * 0.003 * (w + 1);
+        const amplitude = 25 + w * 12;
         ctx.strokeStyle = w === 0 
-          ? "rgba(14, 165, 233, 0.08)" // Blue
-          : "rgba(16, 185, 129, 0.06)"; // Green
+          ? "rgba(14, 165, 233, 0.06)" // Blue
+          : "rgba(16, 185, 129, 0.05)"; // Green
 
-        for (let x = 0; x < width + 20; x += 20) {
-          // Subtle parallax drift to the curves based on mouse position
-          const mouseParallax = mouseX > 0 ? (mouseX - width/2) * 0.05 * (w + 1) : 0;
-          const yBase = height * 0.5 - (x / width) * 100 + mouseParallax;
-          const y = yBase + Math.sin(x * 0.0015 + phase) * amplitude;
+        for (let x = 0; x < width + 20; x += 25) {
+          const mouseParallax = mouseX > 0 ? (mouseX - width/2) * 0.03 * (w + 1) : 0;
+          const yBase = height * 0.52 - (x / width) * 80 + mouseParallax;
+          const y = yBase + Math.sin(x * 0.0012 + phase) * amplitude;
           if (x === 0) {
             ctx.moveTo(x, y);
           } else {
@@ -157,11 +224,9 @@ const FundingBackgroundAnimation = () => {
 
       // 3. Draw and Update Particles with Gravitational Physics
       particles.forEach((p) => {
-        // Base floating movement
         p.ox += p.vx;
         p.oy += p.vy;
 
-        // Reset positions when floating off-screen
         if (p.oy < -10) {
           p.oy = height + 10;
           p.ox = Math.random() * width;
@@ -170,7 +235,6 @@ const FundingBackgroundAnimation = () => {
           p.ox = Math.random() * width;
         }
 
-        // Apply mouse gravity physics (vortex swirl)
         let targetX = p.ox;
         let targetY = p.oy;
 
@@ -178,53 +242,46 @@ const FundingBackgroundAnimation = () => {
           const dx = mouseX - p.x;
           const dy = mouseY - p.y;
           const dist = Math.hypot(dx, dy);
-          if (dist < 300) {
-            // Stronger gravity pull closer to center
-            const force = (300 - dist) * 0.002;
+          if (dist < 250) {
+            const force = (250 - dist) * 0.0015;
             p.x += (dx / dist) * force;
             p.y += (dy / dist) * force;
-            // Damping towards base layout
-            targetX = p.ox + (dx / dist) * (300 - dist) * 0.15;
-            targetY = p.oy + (dy / dist) * (300 - dist) * 0.15;
+            targetX = p.ox + (dx / dist) * (250 - dist) * 0.12;
+            targetY = p.oy + (dy / dist) * (250 - dist) * 0.12;
           }
         }
 
-        // Smoothly interpolate to target position
         p.x += (targetX - p.x) * 0.05;
         p.y += (targetY - p.y) * 0.05;
 
-        // Maintain trail positions for glowing light paths
         p.trail.push({ x: p.x, y: p.y });
-        if (p.trail.length > 8) {
+        if (p.trail.length > 6) {
           p.trail.shift();
         }
 
-        // Draw particle trail (Neon light paths)
         if (p.trail.length > 1) {
           ctx.beginPath();
           ctx.moveTo(p.trail[0].x, p.trail[0].y);
           for (let t = 1; t < p.trail.length; t++) {
             ctx.lineTo(p.trail[t].x, p.trail[t].y);
           }
-          ctx.strokeStyle = p.color + (p.alpha * 0.4) + ")";
-          ctx.lineWidth = p.size * 0.8;
+          ctx.strokeStyle = p.color + (p.alpha * 0.3) + ")";
+          ctx.lineWidth = p.size * 0.7;
           ctx.stroke();
         }
 
-        // Draw particle core
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = p.color + p.alpha + ")";
         ctx.fill();
 
-        // Connect lines for nearby particles to display a mesh grid
         for (let j = 0; j < particles.length; j++) {
           const p2 = particles[j];
           const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 120) {
-            const lineAlpha = (1 - dist / 120) * 0.06;
+          if (dist < 100) {
+            const lineAlpha = (1 - dist / 100) * 0.04;
             ctx.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`;
-            ctx.lineWidth = 0.4;
+            ctx.lineWidth = 0.3;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
@@ -246,7 +303,7 @@ const FundingBackgroundAnimation = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-70" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-80" />;
 };
 
 export const Hero = () => {
