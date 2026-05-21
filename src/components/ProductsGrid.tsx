@@ -102,10 +102,28 @@ const ProductsGrid = () => {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             Small Business Loans & MCA Funding Nationwide
           </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
             From <strong>merchant cash advance</strong> to <strong>working capital loans</strong>, we provide fast approval business funding 
             for small businesses across <strong>all 50 states</strong>. Get funded in 24-48 hours.
           </p>
+          
+          {/* Quick list of offerings */}
+          <div className="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+            {[
+              "Collateralized Loan Options",
+              "Real Estate Loans",
+              "Invoice Factoring",
+              "Payment Processing / Credit Card Processing",
+              "Equipment Financing"
+            ].map((item) => (
+              <span 
+                key={item}
+                className="px-4 py-2 bg-card border border-border/80 rounded-xl text-sm font-semibold text-foreground/80 shadow-soft hover:border-primary/30 hover:text-primary transition-all duration-300"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* Featured Products Row */}
