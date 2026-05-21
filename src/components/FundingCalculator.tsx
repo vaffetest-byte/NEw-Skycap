@@ -96,7 +96,11 @@ export const FundingCalculator = () => {
           },
           body: JSON.stringify({
             amount: state.amount,
+            howMuchFundingDoYouNeed: state.amount,
+            fundingAmount: state.amount,
             purpose: state.purpose,
+            whatIsTheFundingPurpose: state.purpose,
+            fundingPurpose: state.purpose,
             timeInBusiness: state.timeInBusiness,
             monthlyRevenue: state.monthlyRevenue,
             businessName: state.businessName,
