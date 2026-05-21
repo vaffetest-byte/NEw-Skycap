@@ -8,7 +8,6 @@ import Testimonials from "@/components/Testimonials";
 import LenderComparison from "@/components/LenderComparison";
 import IndustrySolutions from "@/components/IndustrySolutions";
 import CaseStudies from "@/components/CaseStudies";
-import TeamAdvisors from "@/components/TeamAdvisors";
 import FaqSection from "@/components/FaqSection";
 import StickyCTA from "@/components/StickyCTA";
 import Footer from "@/components/Footer";
@@ -41,7 +40,6 @@ const Index = () => {
       <section id="testimonials">
         <Testimonials />
       </section>
-      <TeamAdvisors />
       <FaqSection />
       <Footer />
       <StickyCTA />
