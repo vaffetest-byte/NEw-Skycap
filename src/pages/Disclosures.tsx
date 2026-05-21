@@ -95,7 +95,7 @@ const Disclosures = () => {
               <p className="mb-4">
                 If you have questions about our disclosures or funding products:
               </p>
-              <p className="mb-2"><strong>Email:</strong> Support@skycapnow.com</p>
+              <p className="mb-2"><strong>Email:</strong> info@skycapnow.com</p>
               <p className="mb-2"><strong>Phone:</strong> (516)-523-0489</p>
             </section>
           </div>

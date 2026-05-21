@@ -107,7 +107,7 @@ export const TeamAdvisors = () => {
 
         {/* Small trust seal */}
         <p className="text-center text-xs text-muted-foreground mt-12 font-medium">
-          Have general questions? Reach our general support queue at <a href="mailto:Support@skycapnow.com" className="text-primary hover:underline font-bold">Support@skycapnow.com</a> or call <a href="tel:5165230489" className="text-primary hover:underline font-bold">+1-516-523-0489</a>.
+          Have general questions? Reach our general support queue at <a href="mailto:info@skycapnow.com" className="text-primary hover:underline font-bold">info@skycapnow.com</a> or call <a href="tel:5165230489" className="text-primary hover:underline font-bold">+1-516-523-0489</a>.
         </p>
       </div>
     </section>

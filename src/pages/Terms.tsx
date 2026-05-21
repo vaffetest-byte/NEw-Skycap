@@ -100,7 +100,7 @@ const Terms = () => {
               <p className="mb-4">
                 For questions about these Terms of Service, please contact us at:
               </p>
-              <p className="mb-2"><strong>Email:</strong> Support@skycapnow.com</p>
+              <p className="mb-2"><strong>Email:</strong> info@skycapnow.com</p>
               <p className="mb-2"><strong>Phone:</strong> (516)-523-0489</p>
             </section>
           </div>

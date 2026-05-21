@@ -152,14 +152,14 @@ const Footer = () => {
               </li>
               <li>
                 <a 
-                  href="mailto:Support@skycapnow.com" 
+                  href="mailto:info@skycapnow.com" 
                   className="flex items-center gap-3 text-primary-foreground/70 hover:text-primary-foreground transition-colors duration-300 group"
                   aria-label="Email SkyCapital support"
                 >
                   <span className="w-6 h-6 flex items-center justify-center">
                     <Mail className="w-6 h-6 text-accent group-hover:scale-110 transition-transform" aria-hidden="true" />
                   </span>
-                  <span>Support@skycapnow.com</span>
+                  <span>info@skycapnow.com</span>
                 </a>
               </li>
               <li className="flex items-center gap-3">
