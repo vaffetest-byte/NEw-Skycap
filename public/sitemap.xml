@@ -9,37 +9,7 @@
     <priority>1.0</priority>
   </url>
   
-  <!-- Funding Solutions Section -->
-  <url>
-    <loc>https://skycapnow.com/#products</loc>
-    <lastmod>2026-02-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  
-  <!-- How It Works - Funding Process -->
-  <url>
-    <loc>https://skycapnow.com/#process</loc>
-    <lastmod>2026-02-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- Why Choose Us -->
-  <url>
-    <loc>https://skycapnow.com/#why-us</loc>
-    <lastmod>2026-02-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- Testimonials -->
-  <url>
-    <loc>https://skycapnow.com/#testimonials</loc>
-    <lastmod>2026-02-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
+
 
   <!-- Blog - Funding Success Stories -->
   <url>

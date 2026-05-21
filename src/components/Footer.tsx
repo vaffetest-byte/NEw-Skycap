@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Phone, Mail, MapPin, Facebook, Twitter, Linkedin, Instagram, ArrowRight } from "lucide-react";
 import skycapitalLogo from "@/assets/skycapital-logo.png";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const serviceAreas = [
@@ -181,14 +182,17 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-primary-foreground/60">
             <p>© {new Date().getFullYear()} SkyCapital - Nationwide Business Funding. All rights reserved.</p>
             <div className="flex gap-6">
-              <a href="/privacy" className="hover:text-primary-foreground transition-colors duration-300">Privacy Policy</a>
-              <a href="/terms" className="hover:text-primary-foreground transition-colors duration-300">Terms of Service</a>
-              <a href="/disclosures" className="hover:text-primary-foreground transition-colors duration-300">Disclosures</a>
+              <Link to="/privacy" className="hover:text-primary-foreground transition-colors duration-300">Privacy Policy</Link>
+              <Link to="/terms" className="hover:text-primary-foreground transition-colors duration-300">Terms of Service</Link>
+              <Link to="/disclosures" className="hover:text-primary-foreground transition-colors duration-300">Disclosures</Link>
             </div>
           </div>
           <p className="text-xs text-primary-foreground/40 mt-4 text-center md:text-left">
             SkyCapital is a licensed financial services company providing business funding, MCA, and working capital loans to small businesses 
             across all 50 states. Funding products are subject to credit approval. Terms and conditions apply. This is not an offer to lend. Contact us for complete details.
+          </p>
+          <p className="text-xxs text-primary-foreground/30 mt-4 text-center md:text-left leading-relaxed">
+            <strong>Editorial & Fact-Checking Standards:</strong> All information, financial tools, rates, and criteria published on this website are researched, written, and verified by our team of senior funding specialists and credit analysts. SkyCapital is committed to providing accurate, objective, and up-to-date business funding resources in compliance with commercial financial lending guidelines.
           </p>
         </div>
       </div>
