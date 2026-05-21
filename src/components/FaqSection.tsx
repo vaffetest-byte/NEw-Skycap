@@ -63,12 +63,29 @@ export const FaqSection = () => {
         <div className={`bg-card rounded-3xl border border-border/80 shadow-soft p-6 md:p-10 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="border-b border-border/60 py-2 last:border-none">
-                <AccordionTrigger className="text-left font-bold text-base md:text-lg hover:text-primary transition-colors py-4">
+              <AccordionItem 
+                key={index} 
+                value={`item-${index}`} 
+                className="border-b border-border/60 py-2 last:border-none"
+                itemScope
+                itemProp="mainEntity"
+                itemType="https://schema.org/Question"
+              >
+                <AccordionTrigger 
+                  className="text-left font-bold text-base md:text-lg hover:text-primary transition-colors py-4"
+                  itemProp="name"
+                >
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-sm md:text-base text-muted-foreground leading-relaxed pt-2 pb-4">
-                  {faq.answer}
+                <AccordionContent 
+                  className="text-sm md:text-base text-muted-foreground leading-relaxed pt-2 pb-4"
+                  itemScope
+                  itemProp="acceptedAnswer"
+                  itemType="https://schema.org/Answer"
+                >
+                  <div itemProp="text">
+                    {faq.answer}
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             ))}
