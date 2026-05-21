@@ -92,7 +92,7 @@ export const FundingCalculator = () => {
         await fetch(webhookUrl, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "text/plain",
           },
           body: JSON.stringify({
             amount: state.amount,
@@ -129,6 +129,28 @@ export const FundingCalculator = () => {
   const resetCalculator = () => {
     setState(initialCalculatorState);
     setStep(1);
+  };
+
+  const getZohoPreFilledUrl = () => {
+    const baseUrl = "https://forms.zohopublic.com/skycapnow1/form/BusinessApplication/formperma/k4ySefBCGaIjXzTbs58TKi9KHTcjBurx7BVBYrs0buI";
+    const params = new URLSearchParams({
+      "SingleLine": state.businessName,
+      "Name_First": state.firstName,
+      "Name_Last": state.lastName,
+      "Email": state.email,
+      "PhoneNumber": state.phone,
+      "Currency": state.amount.toString(),
+      "businessname": state.businessName,
+      "firstname": state.firstName,
+      "lastname": state.lastName,
+      "email": state.email,
+      "phone": state.phone,
+      "amount": state.amount.toString(),
+      "purpose": state.purpose,
+      "revenue": state.monthlyRevenue,
+      "timeinbusiness": state.timeInBusiness
+    });
+    return `${baseUrl}?${params.toString()}`;
   };
 
   const formatCurrency = (val: number) => {
@@ -462,7 +484,7 @@ export const FundingCalculator = () => {
             <div className="space-y-3 pt-2">
               <Button className="w-full bg-accent text-accent-foreground shadow-accent hover:shadow-elevated hover:bg-accent/90" size="xl" asChild>
                 <a 
-                  href="https://forms.zohopublic.com/skycapnow1/form/BusinessApplication/formperma/k4ySefBCGaIjXzTbs58TKi9KHTcjBurx7BVBYrs0buI" 
+                  href={getZohoPreFilledUrl()} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2"
