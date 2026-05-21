@@ -103,54 +103,72 @@ export const FundingCalculator = () => {
       console.error("Supabase lead insertion error:", dbErr);
     }
     
-    // Attempt webhook submission if VITE_ZOHO_WEBHOOK_URL is configured, fallback to hardcoded value
-    const webhookUrl = import.meta.env.VITE_ZOHO_WEBHOOK_URL || "https://flow.zoho.com/892759697/flow/webhook/incoming?zapikey=1001.c272b76efb605d41498f5743e00bf107.0255d1f2e43f57c0313469d6084b132f&isdebug=false";
-    if (webhookUrl) {
-      try {
-        const params = new URLSearchParams({
-          "First Name": state.firstName,
-          "Last Name": state.lastName,
-          "What is the funding purpose?": state.purpose,
-          "Business Name": state.businessName,
-          "Time in Business": state.timeInBusiness,
-          "Monthly Gross Revenue": state.monthlyRevenue,
-          "How much funding do you need?": state.amount.toString(),
-          "Business Email": state.email,
-          "Mobile Phone": state.phone,
-          "firstName": state.firstName,
-          "lastName": state.lastName,
-          "purpose": state.purpose,
-          "businessName": state.businessName,
-          "timeInBusiness": state.timeInBusiness,
-          "monthlyRevenue": state.monthlyRevenue,
-          "amount": state.amount.toString(),
-          "email": state.email,
-          "phone": state.phone,
-          "First_Name": state.firstName,
-          "Last_Name": state.lastName,
-          "Company": state.businessName,
-          "Email": state.email,
-          "Phone": state.phone,
-          "submittedAt": new Date().toISOString(),
-          "source": "SkyCapital Pre-Qualify Calculator"
-        });
+    // Attempt webhook submission via GoDaddy local proxy script to bypass CORS, fallback to direct webhook for localhost
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const webhookUrl = isLocalhost 
+      ? (import.meta.env.VITE_ZOHO_WEBHOOK_URL || "https://flow.zoho.com/892759697/flow/webhook/incoming?zapikey=1001.c272b76efb605d41498f5743e00bf107.0255d1f2e43f57c0313469d6084b132f&isdebug=false")
+      : "/submit-lead.php";
 
-        const finalWebhookUrl = webhookUrl.includes("?") 
+    try {
+      const payload = {
+        "First Name": state.firstName,
+        "Last Name": state.lastName,
+        "What is the funding purpose?": state.purpose,
+        "Business Name": state.businessName,
+        "Time in Business": state.timeInBusiness,
+        "Monthly Gross Revenue": state.monthlyRevenue,
+        "How much funding do you need?": state.amount,
+        "Business Email": state.email,
+        "Mobile Phone": state.phone,
+        firstName: state.firstName,
+        lastName: state.lastName,
+        purpose: state.purpose,
+        businessName: state.businessName,
+        timeInBusiness: state.timeInBusiness,
+        monthlyRevenue: state.monthlyRevenue,
+        amount: state.amount,
+        email: state.email,
+        phone: state.phone,
+        First_Name: state.firstName,
+        Last_Name: state.lastName,
+        Company: state.businessName,
+        Email: state.email,
+        Phone: state.phone,
+        submittedAt: new Date().toISOString(),
+        source: "SkyCapital Pre-Qualify Calculator"
+      };
+
+      if (isLocalhost) {
+        // Send as both search query params + body fallback for local development testing
+        const params = new URLSearchParams(
+          Object.entries(payload).reduce((acc, [key, val]) => {
+            acc[key] = String(val);
+            return acc;
+          }, {} as Record<string, string>)
+        );
+        const finalUrl = webhookUrl.includes("?") 
           ? `${webhookUrl}&${params.toString()}` 
           : `${webhookUrl}?${params.toString()}`;
 
-        await fetch(finalWebhookUrl, {
+        await fetch(finalUrl, {
           method: "POST",
           headers: {
             "Content-Type": "text/plain",
           },
-          body: JSON.stringify(Object.fromEntries(params)),
+          body: JSON.stringify(payload),
         });
-      } catch (error) {
-        console.error("Error sending lead data to Zoho webhook:", error);
+      } else {
+        // Production: send direct application/json to local PHP proxy (exempt from CORS)
+        await fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
       }
-    } else {
-      console.log("No VITE_ZOHO_WEBHOOK_URL configured. Simulating lead payload:", state);
+    } catch (error) {
+      console.error("Error sending lead data to Zoho webhook:", error);
     }
     
     // Simulate analyzing profile delay, then transition to success screen
