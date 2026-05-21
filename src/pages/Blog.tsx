@@ -24,8 +24,18 @@ function formatCurrency(amount: number) {
   return `$${amount.toLocaleString()}`;
 }
 
+interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  featured_image_url?: string;
+  funding_amount?: number;
+  company_name: string;
+  deal_date?: string;
+}
+
 // Sample posts for display when database is empty
-const samplePosts = [
+const samplePosts: BlogPost[] = [
   {
     id: '1',
     title: 'TechFlow Industries Secures $2.5M Growth Capital',
@@ -82,7 +92,7 @@ const samplePosts = [
   },
 ];
 
-function BlogPostCard({ post, featured = false }: { post: any; featured?: boolean }) {
+function BlogPostCard({ post, featured = false }: { post: BlogPost; featured?: boolean }) {
   return (
     <article 
       className={`group relative overflow-hidden rounded-2xl border border-border/50 transition-all duration-500 hover:shadow-elevated hover:border-primary/20 ${
@@ -156,7 +166,7 @@ function BlogSkeleton({ featured = false }: { featured?: boolean }) {
   );
 }
 
-function StatsCard({ icon: Icon, value, label }: { icon: any; value: string; label: string }) {
+function StatsCard({ icon: Icon, value, label }: { icon: React.ComponentType<{ className?: string }>; value: string; label: string }) {
   return (
     <div className="text-center">
       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent/20 text-accent mb-3">
