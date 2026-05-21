@@ -70,15 +70,15 @@ export const CaseStudies = () => {
           {cases.map((item, idx) => (
             <div 
               key={idx}
-              className={`bg-muted/30 border border-border/60 rounded-3xl p-6 md:p-8 flex flex-col justify-between hover:shadow-elevated hover:border-primary/20 transition-all duration-500 hover:-translate-y-1.5 scroll-reveal-scale stagger-${idx + 1} ${gridVisible ? 'visible' : ''}`}
+              className={`h-full bg-muted/30 border border-border/60 rounded-3xl p-6 md:p-8 flex flex-col justify-between hover:shadow-elevated hover:border-primary/20 transition-all duration-500 hover:-translate-y-1.5 scroll-reveal-scale stagger-${idx + 1} ${gridVisible ? 'visible' : ''}`}
             >
               <div>
                 {/* Meta details */}
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center min-h-[48px] gap-4 mb-6">
                   <span className="px-3 py-1 bg-primary/5 text-primary text-xs font-bold rounded-lg uppercase tracking-wider border border-primary/10">
                     {item.industry}
                   </span>
-                  <span className="text-xs font-bold text-muted-foreground flex items-center gap-1">
+                  <span className="text-xs font-bold text-muted-foreground flex items-center gap-1 shrink-0">
                     <Clock className="w-3.5 h-3.5 text-accent" />
                     {item.timeline} Approval
                   </span>
