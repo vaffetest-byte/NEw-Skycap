@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Check, ArrowRight, ArrowLeft, Loader2, Sparkles, Building2, User, Mail, PhoneCall } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CalculatorState {
   amount: number;
@@ -84,6 +85,23 @@ export const FundingCalculator = () => {
     }
     
     setLoading(true);
+    
+    // Save lead entry to Supabase database
+    try {
+      await (supabase as any).from("leads").insert([{
+        first_name: state.firstName,
+        last_name: state.lastName,
+        business_name: state.businessName,
+        email: state.email,
+        phone: state.phone,
+        amount: state.amount,
+        purpose: state.purpose,
+        monthly_revenue: state.monthlyRevenue,
+        time_in_business: state.timeInBusiness
+      }]);
+    } catch (dbErr) {
+      console.error("Supabase lead insertion error:", dbErr);
+    }
     
     // Attempt webhook submission if VITE_ZOHO_WEBHOOK_URL is configured, fallback to hardcoded value
     const webhookUrl = import.meta.env.VITE_ZOHO_WEBHOOK_URL || "https://flow.zoho.com/892759697/flow/webhook/incoming?zapikey=1001.c272b76efb605d41498f5743e00bf107.0255d1f2e43f57c0313469d6084b132f&isdebug=false";
