@@ -89,44 +89,44 @@ export const FundingCalculator = () => {
     const webhookUrl = import.meta.env.VITE_ZOHO_WEBHOOK_URL || "https://flow.zoho.com/892759697/flow/webhook/incoming?zapikey=1001.c272b76efb605d41498f5743e00bf107.0255d1f2e43f57c0313469d6084b132f&isdebug=false";
     if (webhookUrl) {
       try {
-        await fetch(webhookUrl, {
+        const params = new URLSearchParams({
+          "First Name": state.firstName,
+          "Last Name": state.lastName,
+          "What is the funding purpose?": state.purpose,
+          "Business Name": state.businessName,
+          "Time in Business": state.timeInBusiness,
+          "Monthly Gross Revenue": state.monthlyRevenue,
+          "How much funding do you need?": state.amount.toString(),
+          "Business Email": state.email,
+          "Mobile Phone": state.phone,
+          "firstName": state.firstName,
+          "lastName": state.lastName,
+          "purpose": state.purpose,
+          "businessName": state.businessName,
+          "timeInBusiness": state.timeInBusiness,
+          "monthlyRevenue": state.monthlyRevenue,
+          "amount": state.amount.toString(),
+          "email": state.email,
+          "phone": state.phone,
+          "First_Name": state.firstName,
+          "Last_Name": state.lastName,
+          "Company": state.businessName,
+          "Email": state.email,
+          "Phone": state.phone,
+          "submittedAt": new Date().toISOString(),
+          "source": "SkyCapital Pre-Qualify Calculator"
+        });
+
+        const finalWebhookUrl = webhookUrl.includes("?") 
+          ? `${webhookUrl}&${params.toString()}` 
+          : `${webhookUrl}?${params.toString()}`;
+
+        await fetch(finalWebhookUrl, {
           method: "POST",
           headers: {
             "Content-Type": "text/plain",
           },
-          body: JSON.stringify({
-            // Zoho Form labels
-            "First Name": state.firstName,
-            "Last Name": state.lastName,
-            "What is the funding purpose?": state.purpose,
-            "Business Name": state.businessName,
-            "Time in Business": state.timeInBusiness,
-            "Monthly Gross Revenue": state.monthlyRevenue,
-            "How much funding do you need?": state.amount,
-            "Business Email": state.email,
-            "Mobile Phone": state.phone,
-            
-            // Standard camelCase keys
-            firstName: state.firstName,
-            lastName: state.lastName,
-            purpose: state.purpose,
-            businessName: state.businessName,
-            timeInBusiness: state.timeInBusiness,
-            monthlyRevenue: state.monthlyRevenue,
-            amount: state.amount,
-            email: state.email,
-            phone: state.phone,
-
-            // Zoho API/Underline keys
-            First_Name: state.firstName,
-            Last_Name: state.lastName,
-            Company: state.businessName,
-            Email: state.email,
-            Phone: state.phone,
-            
-            submittedAt: new Date().toISOString(),
-            source: "SkyCapital Pre-Qualify Calculator"
-          }),
+          body: JSON.stringify(Object.fromEntries(params)),
         });
       } catch (error) {
         console.error("Error sending lead data to Zoho webhook:", error);
