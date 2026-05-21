@@ -85,8 +85,8 @@ export const FundingCalculator = () => {
     
     setLoading(true);
     
-    // Attempt webhook submission if VITE_ZOHO_WEBHOOK_URL is configured
-    const webhookUrl = import.meta.env.VITE_ZOHO_WEBHOOK_URL;
+    // Attempt webhook submission if VITE_ZOHO_WEBHOOK_URL is configured, fallback to hardcoded value
+    const webhookUrl = import.meta.env.VITE_ZOHO_WEBHOOK_URL || "https://flow.zoho.com/892759697/flow/webhook/incoming?zapikey=1001.c272b76efb605d41498f5743e00bf107.0255d1f2e43f57c0313469d6084b132f&isdebug=false";
     if (webhookUrl) {
       try {
         await fetch(webhookUrl, {
