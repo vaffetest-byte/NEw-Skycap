@@ -3,7 +3,7 @@ import { Phone, ShieldCheck, Clock, Award, Star } from "lucide-react";
 import FundingCalculator from "./FundingCalculator";
 import useScrollAnimation from "@/hooks/useScrollAnimation";
 
-// Dynamic canvas background rendering floating capital nodes, upward trendlines, and growth particles
+// Dynamic canvas background rendering flowing capital streams, golden coins, and interactive growth nodes
 const FundingBackgroundAnimation = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -16,6 +16,7 @@ const FundingBackgroundAnimation = () => {
     let animationFrameId: number;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
+    let time = 0;
 
     const handleResize = () => {
       if (!canvas) return;
@@ -32,25 +33,33 @@ const FundingBackgroundAnimation = () => {
       vy: number;
       size: number;
       alpha: number;
-      type: "dot" | "currency";
+      type: "coin" | "trend" | "dot";
+      angle: number;
+      angularSpeed: number;
       label?: string;
     }
 
     const particles: Particle[] = [];
-    const maxParticles = 45;
-    const labels = ["$", "+%", "📈", "$", "💰"];
+    const maxParticles = 40;
+    const trendLabels = ["+25%", "+80%", "📈", "GROWTH", "SUCCESS"];
 
     for (let i = 0; i < maxParticles; i++) {
       const typeRand = Math.random();
+      let type: "coin" | "trend" | "dot" = "dot";
+      if (typeRand > 0.85) type = "coin";
+      else if (typeRand > 0.70) type = "trend";
+
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: -Math.random() * 0.6 - 0.2, // Drift upwards
-        size: Math.random() * 1.5 + 1,
-        alpha: Math.random() * 0.3 + 0.1,
-        type: typeRand > 0.85 ? "currency" : "dot",
-        label: labels[Math.floor(Math.random() * labels.length)]
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: -Math.random() * 0.4 - 0.15, // Drift upwards
+        size: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.35 + 0.1,
+        type,
+        angle: Math.random() * Math.PI * 2,
+        angularSpeed: (Math.random() - 0.5) * 0.02,
+        label: trendLabels[Math.floor(Math.random() * trendLabels.length)]
       });
     }
 
@@ -72,60 +81,115 @@ const FundingBackgroundAnimation = () => {
     window.addEventListener("mouseleave", handleMouseLeave);
 
     const draw = () => {
+      time++;
       ctx.clearRect(0, 0, width, height);
 
-      // Draw connections representing capital liquidity network
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i < particles.length; i++) {
-        const p1 = particles[i];
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-          if (dist < 150) {
-            const lineAlpha = (1 - dist / 150) * 0.1;
-            ctx.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`;
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
-        }
+      // 1. Draw Flowing Capital Streams (Sine Waves representing money and liquidity flows)
+      ctx.lineWidth = 1.5;
+      for (let w = 0; w < 3; w++) {
+        ctx.beginPath();
+        const phase = time * 0.005 * (w + 1) + w * (Math.PI / 3);
+        const amplitude = 25 + w * 12;
+        const frequency = 0.0015 + w * 0.0008;
+        
+        // Cycle colors: Sky Blue, Money Green, Soft Mint
+        const strokeColors = [
+          `rgba(14, 165, 233, ${0.08 - w * 0.02})`, // Blue
+          `rgba(16, 185, 129, ${0.07 - w * 0.02})`, // Green
+          `rgba(45, 212, 191, ${0.06 - w * 0.02})`  // Mint Teal
+        ];
+        ctx.strokeStyle = strokeColors[w];
 
-        if (mouseX > 0) {
-          const distToMouse = Math.hypot(p1.x - mouseX, p1.y - mouseY);
-          if (distToMouse < 180) {
-            const lineAlpha = (1 - distToMouse / 180) * 0.2;
-            ctx.strokeStyle = `rgba(14, 165, 233, ${lineAlpha})`; // Accent blue line
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(mouseX, mouseY);
-            ctx.stroke();
+        for (let x = 0; x < width; x += 15) {
+          // Wave rises gently toward the right side of the screen
+          const yBase = height * 0.55 - (x / width) * 120;
+          const y = yBase + Math.sin(x * frequency + phase) * amplitude;
+          if (x === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
           }
         }
+        ctx.stroke();
       }
 
-      // Draw particles
+      // 2. Draw Interactive Ripple Nodes
+      if (mouseX > 0) {
+        ctx.beginPath();
+        const rippleRadius = 80 + Math.sin(time * 0.05) * 10;
+        ctx.arc(mouseX, mouseY, rippleRadius, 0, Math.PI * 2);
+        const gradient = ctx.createRadialGradient(mouseX, mouseY, 5, mouseX, mouseY, rippleRadius);
+        gradient.addColorStop(0, "rgba(14, 165, 233, 0.08)");
+        gradient.addColorStop(1, "rgba(14, 165, 233, 0)");
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      }
+
+      // 3. Draw and Update Particles
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
+        p.angle += p.angularSpeed;
 
-        if (p.y < -10) {
-          p.y = height + 10;
+        // Reset particle position when it floats off-screen
+        if (p.y < -30) {
+          p.y = height + 30;
           p.x = Math.random() * width;
         }
-        if (p.x < -10 || p.x > width + 10) {
+        if (p.x < -30 || p.x > width + 30) {
           p.x = Math.random() * width;
         }
 
-        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+        ctx.save();
 
-        if (p.type === "currency" && p.label) {
-          ctx.font = `bold ${Math.floor(p.size * 5 + 8)}px Inter, sans-serif`;
+        if (p.type === "coin") {
+          // Draw floating golden/emerald coin
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size * 4 + 4, p.size * 2.5 + 2.5, 0, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(16, 185, 129, ${p.alpha * 0.75})`; // Money Green
+          ctx.fill();
+          ctx.strokeStyle = `rgba(255, 255, 255, ${p.alpha})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // Inner dollar sign
+          ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha * 0.95})`;
+          ctx.font = `bold ${Math.floor(p.size * 4.5 + 6)}px Inter, sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("$", 0, 0);
+
+        } else if (p.type === "trend" && p.label) {
+          // Draw growth rate indicator
+          ctx.fillStyle = `rgba(14, 165, 233, ${p.alpha})`; // Sky blue
+          ctx.font = `bold ${Math.floor(p.size * 3.5 + 7)}px Inter, sans-serif`;
           ctx.fillText(p.label, p.x, p.y);
+
         } else {
+          // Draw standard glowing dot
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
           ctx.fill();
+        }
+
+        ctx.restore();
+
+        // Subtle connection lines to nearby particles
+        for (let j = 0; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 130) {
+            const lineAlpha = (1 - dist / 130) * 0.08;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
         }
       });
 
@@ -142,7 +206,7 @@ const FundingBackgroundAnimation = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-50" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-60" />;
 };
 
 export const Hero = () => {
