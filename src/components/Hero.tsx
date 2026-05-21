@@ -1,6 +1,149 @@
+import { useEffect, useRef } from "react";
 import { Phone, ShieldCheck, Clock, Award, Star } from "lucide-react";
 import FundingCalculator from "./FundingCalculator";
 import useScrollAnimation from "@/hooks/useScrollAnimation";
+
+// Dynamic canvas background rendering floating capital nodes, upward trendlines, and growth particles
+const FundingBackgroundAnimation = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    interface Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      alpha: number;
+      type: "dot" | "currency";
+      label?: string;
+    }
+
+    const particles: Particle[] = [];
+    const maxParticles = 45;
+    const labels = ["$", "+%", "📈", "$", "💰"];
+
+    for (let i = 0; i < maxParticles; i++) {
+      const typeRand = Math.random();
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: -Math.random() * 0.6 - 0.2, // Drift upwards
+        size: Math.random() * 1.5 + 1,
+        alpha: Math.random() * 0.3 + 0.1,
+        type: typeRand > 0.85 ? "currency" : "dot",
+        label: labels[Math.floor(Math.random() * labels.length)]
+      });
+    }
+
+    let mouseX = -1000;
+    let mouseY = -1000;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    };
+
+    const handleMouseLeave = () => {
+      mouseX = -1000;
+      mouseY = -1000;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseleave", handleMouseLeave);
+
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw connections representing capital liquidity network
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < particles.length; i++) {
+        const p1 = particles[i];
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+          if (dist < 150) {
+            const lineAlpha = (1 - dist / 150) * 0.1;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+
+        if (mouseX > 0) {
+          const distToMouse = Math.hypot(p1.x - mouseX, p1.y - mouseY);
+          if (distToMouse < 180) {
+            const lineAlpha = (1 - distToMouse / 180) * 0.2;
+            ctx.strokeStyle = `rgba(14, 165, 233, ${lineAlpha})`; // Accent blue line
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(mouseX, mouseY);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw particles
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.y < -10) {
+          p.y = height + 10;
+          p.x = Math.random() * width;
+        }
+        if (p.x < -10 || p.x > width + 10) {
+          p.x = Math.random() * width;
+        }
+
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+
+        if (p.type === "currency" && p.label) {
+          ctx.font = `bold ${Math.floor(p.size * 5 + 8)}px Inter, sans-serif`;
+          ctx.fillText(p.label, p.x, p.y);
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", handleMouseLeave);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-50" />;
+};
 
 export const Hero = () => {
   const { ref: contentRef, isVisible: contentVisible } = useScrollAnimation();
@@ -13,10 +156,8 @@ export const Hero = () => {
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float will-change-transform" style={{ animationDelay: '2s' }} />
       </div>
 
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-      }} />
+      {/* Animated Funding Particle Network Background */}
+      <FundingBackgroundAnimation />
 
       <div className="container px-4 md:px-8 relative z-10">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
