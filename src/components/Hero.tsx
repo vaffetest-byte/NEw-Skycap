@@ -29,52 +29,60 @@ const FundingBackgroundAnimation = () => {
     interface Particle {
       x: number;
       y: number;
+      ox: number; // original X
+      oy: number; // original Y
       vx: number;
       vy: number;
       size: number;
       alpha: number;
-      type: "coin" | "trend" | "dot";
-      angle: number;
-      angularSpeed: number;
-      label?: string;
+      z: number; // depth layers (1 to 3) for parallax
+      color: string;
+      trail: { x: number; y: number }[];
     }
 
     const particles: Particle[] = [];
-    const maxParticles = 40;
-    const trendLabels = ["+25%", "+80%", "📈", "GROWTH", "SUCCESS"];
+    const maxParticles = 80;
+
+    const colors = [
+      "rgba(14, 165, 233, ", // Sky Blue
+      "rgba(16, 185, 129, ", // Emerald Green
+      "rgba(99, 102, 241, ", // Indigo
+      "rgba(45, 212, 191, "  // Teal
+    ];
 
     for (let i = 0; i < maxParticles; i++) {
-      const typeRand = Math.random();
-      let type: "coin" | "trend" | "dot" = "dot";
-      if (typeRand > 0.85) type = "coin";
-      else if (typeRand > 0.70) type = "trend";
-
+      const z = Math.random() * 2 + 1; // 3D depth layer
+      const x = Math.random() * width;
+      const y = Math.random() * height;
       particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.25,
-        vy: -Math.random() * 0.4 - 0.15, // Drift upwards
-        size: Math.random() * 2 + 1,
-        alpha: Math.random() * 0.35 + 0.1,
-        type,
-        angle: Math.random() * Math.PI * 2,
-        angularSpeed: (Math.random() - 0.5) * 0.02,
-        label: trendLabels[Math.floor(Math.random() * trendLabels.length)]
+        x,
+        y,
+        ox: x,
+        oy: y,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: -Math.random() * 0.3 - 0.1, // Float upward
+        size: Math.random() * 1.5 + 0.8,
+        alpha: Math.random() * 0.4 + 0.1,
+        z,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        trail: []
       });
     }
 
     let mouseX = -1000;
     let mouseY = -1000;
+    let targetMouseX = -1000;
+    let targetMouseY = -1000;
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
+      targetMouseX = e.clientX - rect.left;
+      targetMouseY = e.clientY - rect.top;
     };
 
     const handleMouseLeave = () => {
-      mouseX = -1000;
-      mouseY = -1000;
+      targetMouseX = -1000;
+      targetMouseY = -1000;
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -84,26 +92,60 @@ const FundingBackgroundAnimation = () => {
       time++;
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Draw Flowing Capital Streams (Sine Waves representing money and liquidity flows)
-      ctx.lineWidth = 1.5;
-      for (let w = 0; w < 3; w++) {
-        ctx.beginPath();
-        const phase = time * 0.005 * (w + 1) + w * (Math.PI / 3);
-        const amplitude = 25 + w * 12;
-        const frequency = 0.0015 + w * 0.0008;
-        
-        // Cycle colors: Sky Blue, Money Green, Soft Mint
-        const strokeColors = [
-          `rgba(14, 165, 233, ${0.08 - w * 0.02})`, // Blue
-          `rgba(16, 185, 129, ${0.07 - w * 0.02})`, // Green
-          `rgba(45, 212, 191, ${0.06 - w * 0.02})`  // Mint Teal
-        ];
-        ctx.strokeStyle = strokeColors[w];
+      // Smooth mouse interpolation
+      if (targetMouseX > 0) {
+        if (mouseX === -1000) {
+          mouseX = targetMouseX;
+          mouseY = targetMouseY;
+        } else {
+          mouseX += (targetMouseX - mouseX) * 0.08;
+          mouseY += (targetMouseY - mouseY) * 0.08;
+        }
+      } else {
+        mouseX = -1000;
+        mouseY = -1000;
+      }
 
-        for (let x = 0; x < width; x += 15) {
-          // Wave rises gently toward the right side of the screen
-          const yBase = height * 0.55 - (x / width) * 120;
-          const y = yBase + Math.sin(x * frequency + phase) * amplitude;
+      // 1. Draw Aurora Fluid Background Waves
+      // Emerald Green Capital Core
+      const emX = width * 0.35 + Math.sin(time * 0.003) * 100;
+      const emY = height * 0.65 + Math.cos(time * 0.002) * 80;
+      const emGrad = ctx.createRadialGradient(emX, emY, 20, emX, emY, 400);
+      emGrad.addColorStop(0, "rgba(16, 185, 129, 0.09)"); // Emerald
+      emGrad.addColorStop(0.5, "rgba(45, 212, 191, 0.03)"); // Teal
+      emGrad.addColorStop(1, "rgba(16, 185, 129, 0)");
+      ctx.fillStyle = emGrad;
+      ctx.beginPath();
+      ctx.arc(emX, emY, 400, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sky Blue Funding Stream Core
+      const blX = width * 0.7 + Math.cos(time * 0.0025) * 120;
+      const blY = height * 0.35 + Math.sin(time * 0.003) * 60;
+      const blGrad = ctx.createRadialGradient(blX, blY, 20, blX, blY, 350);
+      blGrad.addColorStop(0, "rgba(14, 165, 233, 0.12)"); // Sky Blue
+      blGrad.addColorStop(0.5, "rgba(99, 102, 241, 0.04)"); // Indigo
+      blGrad.addColorStop(1, "rgba(14, 165, 233, 0)");
+      ctx.fillStyle = blGrad;
+      ctx.beginPath();
+      ctx.arc(blX, blY, 350, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 2. Draw Floating Capital Stream Ribbons
+      ctx.lineWidth = 1;
+      for (let w = 0; w < 2; w++) {
+        ctx.beginPath();
+        const phase = time * 0.004 * (w + 1);
+        const amplitude = 30 + w * 15;
+        ctx.strokeStyle = w === 0 
+          ? "rgba(14, 165, 233, 0.08)" // Blue
+          : "rgba(16, 185, 129, 0.06)"; // Green
+
+        for (let x = 0; x < width + 20; x += 20) {
+          // Subtle parallax drift to the curves based on mouse position
+          const mouseParallax = mouseX > 0 ? (mouseX - width/2) * 0.05 * (w + 1) : 0;
+          const yBase = height * 0.5 - (x / width) * 100 + mouseParallax;
+          const y = yBase + Math.sin(x * 0.0015 + phase) * amplitude;
           if (x === 0) {
             ctx.moveTo(x, y);
           } else {
@@ -113,78 +155,76 @@ const FundingBackgroundAnimation = () => {
         ctx.stroke();
       }
 
-      // 2. Draw Interactive Ripple Nodes
-      if (mouseX > 0) {
-        ctx.beginPath();
-        const rippleRadius = 80 + Math.sin(time * 0.05) * 10;
-        ctx.arc(mouseX, mouseY, rippleRadius, 0, Math.PI * 2);
-        const gradient = ctx.createRadialGradient(mouseX, mouseY, 5, mouseX, mouseY, rippleRadius);
-        gradient.addColorStop(0, "rgba(14, 165, 233, 0.08)");
-        gradient.addColorStop(1, "rgba(14, 165, 233, 0)");
-        ctx.fillStyle = gradient;
-        ctx.fill();
-      }
-
-      // 3. Draw and Update Particles
+      // 3. Draw and Update Particles with Gravitational Physics
       particles.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.angle += p.angularSpeed;
+        // Base floating movement
+        p.ox += p.vx;
+        p.oy += p.vy;
 
-        // Reset particle position when it floats off-screen
-        if (p.y < -30) {
-          p.y = height + 30;
-          p.x = Math.random() * width;
+        // Reset positions when floating off-screen
+        if (p.oy < -10) {
+          p.oy = height + 10;
+          p.ox = Math.random() * width;
         }
-        if (p.x < -30 || p.x > width + 30) {
-          p.x = Math.random() * width;
+        if (p.ox < -10 || p.ox > width + 10) {
+          p.ox = Math.random() * width;
         }
 
-        ctx.save();
+        // Apply mouse gravity physics (vortex swirl)
+        let targetX = p.ox;
+        let targetY = p.oy;
 
-        if (p.type === "coin") {
-          // Draw floating golden/emerald coin
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.angle);
+        if (mouseX > 0) {
+          const dx = mouseX - p.x;
+          const dy = mouseY - p.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 300) {
+            // Stronger gravity pull closer to center
+            const force = (300 - dist) * 0.002;
+            p.x += (dx / dist) * force;
+            p.y += (dy / dist) * force;
+            // Damping towards base layout
+            targetX = p.ox + (dx / dist) * (300 - dist) * 0.15;
+            targetY = p.oy + (dy / dist) * (300 - dist) * 0.15;
+          }
+        }
+
+        // Smoothly interpolate to target position
+        p.x += (targetX - p.x) * 0.05;
+        p.y += (targetY - p.y) * 0.05;
+
+        // Maintain trail positions for glowing light paths
+        p.trail.push({ x: p.x, y: p.y });
+        if (p.trail.length > 8) {
+          p.trail.shift();
+        }
+
+        // Draw particle trail (Neon light paths)
+        if (p.trail.length > 1) {
           ctx.beginPath();
-          ctx.ellipse(0, 0, p.size * 4 + 4, p.size * 2.5 + 2.5, 0, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(16, 185, 129, ${p.alpha * 0.75})`; // Money Green
-          ctx.fill();
-          ctx.strokeStyle = `rgba(255, 255, 255, ${p.alpha})`;
-          ctx.lineWidth = 1;
+          ctx.moveTo(p.trail[0].x, p.trail[0].y);
+          for (let t = 1; t < p.trail.length; t++) {
+            ctx.lineTo(p.trail[t].x, p.trail[t].y);
+          }
+          ctx.strokeStyle = p.color + (p.alpha * 0.4) + ")";
+          ctx.lineWidth = p.size * 0.8;
           ctx.stroke();
-
-          // Inner dollar sign
-          ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha * 0.95})`;
-          ctx.font = `bold ${Math.floor(p.size * 4.5 + 6)}px Inter, sans-serif`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("$", 0, 0);
-
-        } else if (p.type === "trend" && p.label) {
-          // Draw growth rate indicator
-          ctx.fillStyle = `rgba(14, 165, 233, ${p.alpha})`; // Sky blue
-          ctx.font = `bold ${Math.floor(p.size * 3.5 + 7)}px Inter, sans-serif`;
-          ctx.fillText(p.label, p.x, p.y);
-
-        } else {
-          // Draw standard glowing dot
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
-          ctx.fill();
         }
 
-        ctx.restore();
+        // Draw particle core
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + p.alpha + ")";
+        ctx.fill();
 
-        // Subtle connection lines to nearby particles
+        // Connect lines for nearby particles to display a mesh grid
         for (let j = 0; j < particles.length; j++) {
           const p2 = particles[j];
           const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 130) {
-            const lineAlpha = (1 - dist / 130) * 0.08;
+          if (dist < 120) {
+            const lineAlpha = (1 - dist / 120) * 0.06;
             ctx.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`;
-            ctx.lineWidth = 0.5;
+            ctx.lineWidth = 0.4;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
@@ -206,7 +246,7 @@ const FundingBackgroundAnimation = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-60" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-70" />;
 };
 
 export const Hero = () => {
