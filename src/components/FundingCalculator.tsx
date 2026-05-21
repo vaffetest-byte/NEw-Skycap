@@ -95,6 +95,7 @@ export const FundingCalculator = () => {
             "Content-Type": "text/plain",
           },
           body: JSON.stringify({
+            // Zoho Form labels
             "First Name": state.firstName,
             "Last Name": state.lastName,
             "What is the funding purpose?": state.purpose,
@@ -104,6 +105,25 @@ export const FundingCalculator = () => {
             "How much funding do you need?": state.amount,
             "Business Email": state.email,
             "Mobile Phone": state.phone,
+            
+            // Standard camelCase keys
+            firstName: state.firstName,
+            lastName: state.lastName,
+            purpose: state.purpose,
+            businessName: state.businessName,
+            timeInBusiness: state.timeInBusiness,
+            monthlyRevenue: state.monthlyRevenue,
+            amount: state.amount,
+            email: state.email,
+            phone: state.phone,
+
+            // Zoho API/Underline keys
+            First_Name: state.firstName,
+            Last_Name: state.lastName,
+            Company: state.businessName,
+            Email: state.email,
+            Phone: state.phone,
+            
             submittedAt: new Date().toISOString(),
             source: "SkyCapital Pre-Qualify Calculator"
           }),
